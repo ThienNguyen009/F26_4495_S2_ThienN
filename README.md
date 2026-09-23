@@ -4,8 +4,8 @@ First of all, as I shared with you a readmission within 30 days of discharge is 
 Hospitals already hold the data that would help: diagnosis, comorbidity count, length of stay, prior admissions, discharge disposition. What most lack is a systematic way to use it. Deciding who needs intensified follow-up still comes down to a checklist or a clinician’s judgment under time pressure. This project treats that gap as an analytics problem: turn the discharge record into an automatic risk screen that runs for every patient, every day.
 And it also would be a website as you told me that has multiple features for third parties, or hospitals can use it to track and pay attention too high-risk patients like those people who have diabetes….
 How does it work?
-The central question: 
-Central question: which patient-level, clinical, and administrative factors are most strongly associated with 30-day readmission, and can a machine-learning classifier flag high-risk patients early enough, and clearly enough, for a discharge-planning team to intervene before the patient leaves?
+### The central question: 
+which patient-level, clinical, and administrative factors are most strongly associated with 30-day readmission, and can a machine-learning classifier flag high-risk patients early enough, and clearly enough, for a discharge-planning team to intervene before the patient leaves?
 1.	Readmissions are often preventable. A call, a home-care referral, or a medication review works, when it reaches the right patient. The hard part is knowing who that is while they are still on the ward.
 2.	Follow-up capacity is finite. No hospital can intervene with every discharged patient, so any useful system has to rank them.
 3.	A bare probability is not actionable. Staff need to know why a patient was flagged and what to do about it.
