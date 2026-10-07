@@ -1,0 +1,23 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Node
+node_modules/
+dist/
+
+# Env and secrets
+.env
+
+# Data and model artifacts (large, regenerable)
+Implementation/data/
+Implementation/artifacts/
