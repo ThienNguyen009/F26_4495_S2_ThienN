@@ -1,0 +1,6 @@
+Metric	     Meaning	                                                   Reference point
+ROC-AUC	     How well the model ranks readmitted patients above others	   0.5 = random
+PR-AUC	     Ranking quality focused on the rare positive class	Base rate  (~0.11) = random
+Precision at top 20%	If staff call the top 20%, what share actually needed it	Base rate
+Recall	     Share of all readmissions the model catches	              depends on threshold
+Brier score	   Accuracy of the probabilities themselves (lower is better)
