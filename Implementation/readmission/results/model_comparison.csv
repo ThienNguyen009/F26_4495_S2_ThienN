@@ -1,0 +1,4 @@
+model,roc_auc,pr_auc,precision_at_top20,recall_at_0.5,precision_at_0.5,flagged_share_at_0.5,brier,mean_predicted,base_rate
+LR (no correction),0.6448,0.1953,0.1936,0.0117,0.5,0.0027,0.0981,0.1101,0.114
+LR (class weights),0.6458,0.1944,0.1933,0.5192,0.173,0.3421,0.2249,0.4628,0.114
+LR (SMOTE),0.6316,0.1902,0.1936,0.5136,0.1676,0.3494,0.2243,0.4551,0.114
