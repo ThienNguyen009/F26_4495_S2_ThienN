@@ -8,10 +8,22 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
-app = FastAPI()
-app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
+from api.auth import router as auth_router
+from api.db import init_db
+from api.scoring import router as scoring_router
+
+@asynccontextmanager
+async def lifespan(app):
+    init_db()   # creates users/sessions tables if missing
+    yield
+
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5174"],
                    allow_methods=["*"], allow_headers=["*"])
+app.include_router(auth_router)
+app.include_router(scoring_router)
  
 # @app.get("/")
 # def running():
@@ -20,7 +32,3 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173"],
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
-@app.post("/predict")
-def predict():
-    return {"probability": 0.999, "tier": "Highest Level hahaha"}   # this one I just fake for now
