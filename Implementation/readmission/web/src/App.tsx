@@ -1,42 +1,34 @@
-import { useState } from 'react'
-
-type Prediction = { probability: number; tier: string }
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { RequireAuth } from './components/RequireAuth'
+import { AppLayout } from './layout/AppLayout'
+import { NAV } from './layout/nav'
+import { CohortIntakePage } from './pages/CohortIntakePage'
+import { ComingSoonPage } from './pages/ComingSoonPage'
+import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
+import { ScorePatientPage } from './pages/ScorePatientPage'
 
 function App() {
-  const [result, setResult] = useState<Prediction | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
-
-  async function handlePredict() {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await fetch('http://localhost:8000/predict', { method: 'POST' })
-      if (!res.ok) throw new Error(`Server returned ${res.status}`)
-      setResult(await res.json())
-    } catch (err) {
-      setError(String(err))
-    } finally {
-      setLoading(false)
-    }
-  }
-
   return (
-    <main style={{ padding: 32, fontFamily: 'sans-serif' }}>
-      <h1>Readmission Risk</h1>
-      <button onClick={handlePredict} disabled={loading}>
-        {loading ? 'Predicting…' : 'Predict'}
-      </button>
-
-      {result && (
-        <p>
-          Probability: <strong>{result.probability}</strong> — Tier: <strong>{result.tier}</strong>
-        </p>
-      )}
-      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
-    </main>
+    <Routes>
+      <Route
+        element={
+          <RequireAuth>
+            <AppLayout />
+          </RequireAuth>
+        }
+      >
+        <Route path="/" element={<CohortIntakePage />} />
+        <Route path="/score" element={<ScorePatientPage />} />
+        {NAV.slice(1).map((item) => (
+          <Route key={item.to} path={item.to} element={<ComingSoonPage title={item.label} />} />
+        ))}
+      </Route>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
 
 export default App
-
