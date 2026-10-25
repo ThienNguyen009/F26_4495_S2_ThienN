@@ -1,16 +1,12 @@
 import {
   Anchor,
-  Box,
   Button,
   Grid,
   Group,
-  NumberInput,
   Radio,
-  Select,
   SimpleGrid,
   Stack,
   Text,
-  Timeline,
   Title,
 } from '@mantine/core'
 import { useState, type DragEvent } from 'react'
