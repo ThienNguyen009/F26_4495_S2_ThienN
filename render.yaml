@@ -1,0 +1,25 @@
+# Render Blueprint: FastAPI backend + Postgres. Deploy via Render dashboard -> New -> Blueprint.
+services:
+  - type: web
+    name: readmit-api
+    runtime: python
+    plan: free
+    rootDir: Implementation/readmission
+    buildCommand: pip install -r requirements-api.txt
+    startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: DATABASE_URL
+        fromDatabase:
+          name: readmit-db
+          property: connectionString
+      - key: ALLOWED_ORIGINS
+        sync: false   # asked for in the dashboard; e.g. http://localhost:5173,https://your-frontend.example
+
+databases:
+  - name: readmit-db
+    plan: free
+    databaseName: readmit
+    user: readmit
