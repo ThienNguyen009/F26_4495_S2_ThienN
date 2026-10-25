@@ -9,7 +9,9 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { useState, type DragEvent } from 'react'
+import { useState, 
+  //type DragEvent
+ } from 'react'
 import { useNavigate } from 'react-router-dom'
 import classes from './CohortIntakePage.module.css'
 
