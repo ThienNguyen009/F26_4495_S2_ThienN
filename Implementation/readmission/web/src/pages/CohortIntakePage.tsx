@@ -36,38 +36,38 @@ const MODES: { value: Mode; title: string; body: string; foot: string }[] = [
   },
 ]
 
-const PIPELINE = [
-  {
-    title: 'Schema validation',
-    body: 'Pydantic checks every column, type, and permitted category. Rows that fail are rejected with a reason, not silently dropped.',
-    color: 'var(--mantine-color-brand-4)',
-  },
-  {
-    title: 'Feature pipeline',
-    body: 'The same scikit-learn transformer fitted during training — missing-value handling, diagnosis grouping, encoding.',
-    color: 'var(--mantine-color-brand-4)',
-  },
-  {
-    title: 'Model inference',
-    body: 'The versioned XGBoost pipeline returns a probability per encounter.',
-    color: 'var(--mantine-color-brand-4)',
-  },
-  {
-    title: 'SHAP attribution',
-    body: 'Per-patient contributions computed alongside the prediction, so the explanation is never reconstructed after the fact.',
-    color: 'var(--mantine-color-brand-4)',
-  },
-  {
-    title: 'Risk tier and action',
-    body: 'Thresholds from the precision-recall curve assign low, medium, or high, and the tier rule attaches the recommended follow-up.',
-    color: '#b8860b',
-  },
-  {
-    title: 'Written to the queue',
-    body: 'Scored encounters land in PostgreSQL and appear on the discharge queue.',
-    color: 'var(--mantine-color-brand-8)',
-  },
-]
+// const PIPELINE = [
+//   {
+//     title: 'Schema validation',
+//     body: 'Pydantic checks every column, type, and permitted category. Rows that fail are rejected with a reason, not silently dropped.',
+//     color: 'var(--mantine-color-brand-4)',
+//   },
+//   {
+//     title: 'Feature pipeline',
+//     body: 'The same scikit-learn transformer fitted during training — missing-value handling, diagnosis grouping, encoding.',
+//     color: 'var(--mantine-color-brand-4)',
+//   },
+//   {
+//     title: 'Model inference',
+//     body: 'The versioned XGBoost pipeline returns a probability per encounter.',
+//     color: 'var(--mantine-color-brand-4)',
+//   },
+//   {
+//     title: 'SHAP attribution',
+//     body: 'Per-patient contributions computed alongside the prediction, so the explanation is never reconstructed after the fact.',
+//     color: 'var(--mantine-color-brand-4)',
+//   },
+//   {
+//     title: 'Risk tier and action',
+//     body: 'Thresholds from the precision-recall curve assign low, medium, or high, and the tier rule attaches the recommended follow-up.',
+//     color: '#b8860b',
+//   },
+//   {
+//     title: 'Written to the queue',
+//     body: 'Scored encounters land in PostgreSQL and appear on the discharge queue.',
+//     color: 'var(--mantine-color-brand-8)',
+//   },
+// ]
 
 const SUBMIT: Record<Exclude<Mode, 'single'>, { label: string; hint: string }> = {
   replay: { label: 'Score cohort', hint: 'Draws from the held-out test partition · n = 15,231' },
@@ -149,18 +149,18 @@ export function CohortIntakePage() {
   )
 }
 
-function PanelHeading({ title, body }: { title: string; body: string }) {
-  return (
-    <div>
-      <Text fw={700} size="lg">
-        {title}
-      </Text>
-      <Text size="sm" c="gray.7">
-        {body}
-      </Text>
-    </div>
-  )
-}
+// function PanelHeading({ title, body }: { title: string; body: string }) {
+//   return (
+//     <div>
+//       <Text fw={700} size="lg">
+//         {title}
+//       </Text>
+//       <Text size="sm" c="gray.7">
+//         {body}
+//       </Text>
+//     </div>
+//   )
+// }
 
 function ReplayForm() {
   return (
@@ -192,14 +192,11 @@ function ReplayForm() {
 }
 
 function CsvForm() {
-  const [file, setFile] = useState<File | null>(null)
-  const [dragging, setDragging] = useState(false)
-
-  function handleDrop(e: DragEvent) {
-    e.preventDefault()
-    setDragging(false)
-    setFile(e.dataTransfer.files[0] ?? null)
-  }
+  // const [file, setFile] = useState<File | null>(null)
+  // const [dragging, setDragging] = useState(false)
+  // console.log(file);
+  // console.log(dragging);
+ 
 
   return (
     <Stack gap="lg">
