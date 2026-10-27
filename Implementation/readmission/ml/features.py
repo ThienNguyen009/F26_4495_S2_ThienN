@@ -1,8 +1,10 @@
 ### This one is cleaning and feature engineering. I used by training AND by the API 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
-RAW_PATH = "data/diabetic_data.csv"
+RAW_PATH = Path(__file__).resolve().parent.parent / "data" / "diabetic_data.csv"
 
 MEDS = ["metformin", "repaglinide", "nateglinide", "chlorpropamide", "glimepiride",
         "acetohexamide", "glipizide", "glyburide", "tolbutamide", "pioglitazone",
@@ -134,3 +136,13 @@ def build_features(df: pd.DataFrame) -> pd.DataFrame:
     df["total_prior_visits"] = (df["number_outpatient"] + df["number_emergency"]
                                 + df["number_inpatient"])
     return df
+
+if __name__ == "__main__":
+    raw = load_raw()
+    filtered = filter_rows(raw)
+    df = build_features(add_target(filtered))
+    print(f"Raw rows:      {len(raw):,}")
+    print(f"Removed:       {len(raw) - len(filtered):,}")
+    print(f"Clean rows:    {len(df):,}")
+    print(f"Columns:       {df.shape[1]}")
+    print(f"Readmit rate:  {df['target'].mean():.1%}")
