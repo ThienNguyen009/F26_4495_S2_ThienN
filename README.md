@@ -1,5 +1,8 @@
  # Predicting and Preventing 30-Day Hospital Readmissions
 
+ <img width="1395" height="881" alt="Open Weather" src="https://github.com/user-attachments/assets/7ceeda42-0811-4980-a695-51cce32c576e" />
+
+
 **Live preview:** https://f26-4495-s2-thien-n.vercel.app/
 
 You can use this demo account to run my project, and one thing u forgot to tell you that u can save the user input into the dataset.
