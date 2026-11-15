@@ -5,4 +5,5 @@ __pycache__/
 node_modules/
 web/dist/
 *.joblib
+!Implementation/readmission/models/readmission_form.joblib
 features.md

@@ -6,6 +6,7 @@ from itertools import product
 from pathlib import Path
 
 import joblib
+import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -59,7 +60,14 @@ def main():
         best = max(rows, key=lambda r: r["pr_auc"])["model"]
         p = fitted[best].predict_proba(S["test"][cols])[:, 1]
         test_rows.append({"features": set_name, **evaluate(S["test"]["target"], p, best)})
-        joblib.dump(fitted[best], MODEL_DIR / f"readmission_{set_name}.joblib")
+
+        ### risk tiers by follow-up capacity, read off validation (never test):
+        ### top 10% of patients are high, the next 10% medium
+        p_val = fitted[best].predict_proba(S["val"][cols])[:, 1]
+        joblib.dump({"pipeline": fitted[best],
+                     "high_threshold": float(np.quantile(p_val, 0.90)),
+                     "medium_threshold": float(np.quantile(p_val, 0.80))},
+                    MODEL_DIR / f"readmission_{set_name}.joblib")
         val_rows += rows
 
     val = pd.DataFrame(val_rows).round(4)

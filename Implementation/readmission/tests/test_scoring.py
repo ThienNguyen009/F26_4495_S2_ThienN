@@ -17,6 +17,12 @@ def test_predict_returns_result_shape():
     assert 0 < body["probability"] < 1
     assert body["tier"] in {"low", "medium", "high"}
     assert len(body["contributions"]) <= 5
+    assert body["placeholder"] is False
+
+def test_more_prior_admissions_means_higher_risk():
+    low = client.post("/predict", json={**PATIENT, "number_inpatient": 0}).json()
+    high = client.post("/predict", json={**PATIENT, "number_inpatient": 5}).json()
+    assert high["probability"] > low["probability"]
 
 def test_predict_rejects_unknown_category():
     r = client.post("/predict", json={**PATIENT, "gender": "Unknown"})

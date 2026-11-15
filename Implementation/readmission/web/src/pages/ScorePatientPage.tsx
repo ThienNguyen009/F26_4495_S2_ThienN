@@ -12,6 +12,7 @@ import {
   Text,
   TextInput,
   Title,
+  Tooltip,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { useState, type CSSProperties, type ReactNode } from 'react'
@@ -39,6 +40,48 @@ const RACES = [
 
 const TIER_LABEL: Record<Tier, string> = { high: 'High risk', medium: 'Medium risk', low: 'Low risk' }
 const TIER_COLOR: Record<Tier, string> = { high: 'var(--risk-high)', medium: 'var(--risk-medium)', low: 'var(--risk-low)' }
+
+// plain-language help shown in the ? tooltip next to each field label
+const HELP: Partial<Record<keyof typeof INITIAL, string>> = {
+  race: 'Used only to check that the model treats groups fairly. It is never sent to the model.',
+  age_band: 'The patient’s age, in 10-year groups. On its own, age has only a small effect on the risk score.',
+  gender: 'The patient’s recorded sex. It has almost no effect on the risk score.',
+  admission_type: 'How the patient came in: emergency, urgent, planned (elective) or after an injury (trauma).',
+  time_in_hospital: 'How many days the patient spent in hospital this time (1–14).',
+  disposition_group:
+    'Where the patient goes after leaving. A care facility or another hospital raises the risk; home without services lowers it.',
+  number_inpatient:
+    'How many times the patient was admitted to hospital in the past 12 months. This is the strongest single factor in the model.',
+  number_emergency: 'Visits to the emergency department in the past 12 months.',
+  number_outpatient: 'Clinic or doctor’s office visits in the past 12 months (not hospital stays).',
+  diag_1_group:
+    'The main reason for this stay, grouped by body system. For example, Circulatory means heart and blood vessels.',
+  diag_2_group: 'The second most important condition recorded for this stay, grouped the same way.',
+  number_diagnoses:
+    'How many separate conditions were recorded for this stay. More conditions usually means a more complex patient.',
+  num_lab_procedures: 'How many lab tests, such as blood tests, were done during this stay.',
+  num_procedures: 'How many procedures other than lab tests, such as scans or surgery, were done during this stay (0–6).',
+  num_medications: 'How many different medicines the patient was given during this stay.',
+  A1Cresult:
+    'A blood test showing average blood sugar over the past 2–3 months. Above 7% or 8% means diabetes is poorly controlled. “Not measured” means no test was done.',
+  change: 'Whether any diabetes medicine was started, stopped or had its dose changed during this stay.',
+}
+
+function withHelp(field: keyof typeof INITIAL, label: string): ReactNode {
+  const help = HELP[field]
+  if (!help) return label
+  return (
+    <>
+      {label}
+      <Tooltip label={help} multiline w={280} withArrow events={{ hover: true, focus: true, touch: true }}>
+        {/* preventDefault so clicking the ? doesn't move focus into the field */}
+        <span className={classes.help} tabIndex={0} aria-label={help} onClick={(e) => e.preventDefault()}>
+          ?
+        </span>
+      </Tooltip>
+    </>
+  )
+}
 
 const INITIAL = {
   // who this is — kept with the result, never sent to the model
@@ -94,10 +137,10 @@ export function ScorePatientPage() {
   }
 
   const num = (field: keyof typeof INITIAL, label: string, min = 0, max?: number) => (
-    <NumberInput label={label} min={min} max={max} allowDecimal={false} radius="md" {...form.getInputProps(field)} />
+    <NumberInput label={withHelp(field, label)} min={min} max={max} allowDecimal={false} radius="md" {...form.getInputProps(field)} />
   )
   const select = (field: keyof typeof INITIAL, label: string, data: { value: string; label: string }[]) => (
-    <NativeSelect label={label} data={data} radius="md" {...form.getInputProps(field)} />
+    <NativeSelect label={withHelp(field, label)} data={data} radius="md" {...form.getInputProps(field)} />
   )
 
   return (
@@ -156,7 +199,7 @@ export function ScorePatientPage() {
                     {num('number_diagnoses', 'Number of diagnoses', 1, 16)}
                     {num('num_lab_procedures', 'Lab procedures')}
                     {num('num_procedures', 'Procedures performed', 0, 6)}
-                    {num('num_medications', 'Discharge medications')}
+                    {num('num_medications', 'Medications during stay')}
                     {select('A1Cresult', 'HbA1c result', [
                       { value: 'None', label: 'Not measured' },
                       { value: 'Norm', label: 'Normal' },

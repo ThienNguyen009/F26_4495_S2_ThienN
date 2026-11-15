@@ -1,8 +1,13 @@
-### Single-patient scoring. Request schema is the real one, the scoring itself is a
-### hand-weighted placeholder until the trained pipeline is saved and loaded in here
+### Single-patient scoring with the trained XGBoost pipeline (models/readmission_form.joblib,
+### written by ml/train.py). The explanation is the model's own SHAP values, not a second model
 
+from pathlib import Path
 from typing import Literal
 
+import joblib
+import numpy as np
+import pandas as pd
+import xgboost as xgb
 from fastapi import APIRouter
 from pydantic import BaseModel, Field
 
@@ -13,9 +18,14 @@ AgeBand = Literal["[0-10)", "[10-20)", "[20-30)", "[30-40)", "[40-50)",
 DiagGroup = Literal["Circulatory", "Respiratory", "Digestive", "Diabetes", "Injury", "Musculoskeletal",
                     "Genitourinary", "Neoplasms", "Other", "Missing"]
 
-BASE_RATE = 0.11
-HIGH_THRESHOLD = 0.47
-MEDIUM_THRESHOLD = 0.25
+MODEL_PATH = Path(__file__).resolve().parent.parent / "models" / "readmission_form.joblib"
+BUNDLE = joblib.load(MODEL_PATH)
+PIPELINE = BUNDLE["pipeline"]
+FEATURES = list(PIPELINE.feature_names_in_)
+
+### tiers by follow-up capacity: top 10% of validation patients are high, next 10% medium
+HIGH_THRESHOLD = BUNDLE["high_threshold"]
+MEDIUM_THRESHOLD = BUNDLE["medium_threshold"]
 
 ACTIONS = {
     "high": "Home-care referral & medication reconciliation",
@@ -45,34 +55,75 @@ class PatientIn(BaseModel):
 
 
 DISPOSITION_LABEL = {"Home": "Home, no services"}
-DISPOSITION_WEIGHT = {"Home": 0.10, "Home with services": 0.05, "Care facility": 0.08,
-                      "Other hospital": 0.06, "Left AMA": 0.12, "Other": 0.0}
 
 
-def placeholder_contributions(p: PatientIn) -> list[tuple[str, float]]:
-    return [
-        (f"Prior inpatient admissions ({p.number_inpatient})", min(p.number_inpatient, 4) * 0.073),
-        (f"Discharge medications ({p.num_medications})", (p.num_medications - 10) * 0.019),
-        (DISPOSITION_LABEL.get(p.disposition_group, p.disposition_group), DISPOSITION_WEIGHT[p.disposition_group]),
-        (f"{p.admission_type} admission", 0.06 if p.admission_type == "Emergency" else -0.02),
-        (f"Procedures performed ({p.num_procedures})", -0.02 * p.num_procedures),
-        (f"Emergency visits ({p.number_emergency})", min(p.number_emergency, 4) * 0.02),
-        (f"Length of stay ({p.time_in_hospital} days)", (p.time_in_hospital - 4) * 0.01),
-    ]
+def to_features(p: PatientIn) -> pd.DataFrame:
+    row = p.model_dump()
+    row["age_num"] = int(p.age_band[1:].split("-")[0]) + 5     # same as build_features
+    row["total_prior_visits"] = p.number_outpatient + p.number_emergency + p.number_inpatient
+    return pd.DataFrame([row])[FEATURES]
+
+
+def label(feature: str, p: PatientIn) -> str:
+    return {
+        "age_num": f"Age {p.age_band}",
+        "gender": p.gender,
+        "admission_type": f"{p.admission_type} admission",
+        "time_in_hospital": f"Length of stay ({p.time_in_hospital} days)",
+        "disposition_group": f"Discharge: {DISPOSITION_LABEL.get(p.disposition_group, p.disposition_group)}",
+        "number_inpatient": f"Prior inpatient admissions ({p.number_inpatient})",
+        "number_emergency": f"Emergency visits ({p.number_emergency})",
+        "number_outpatient": f"Outpatient visits ({p.number_outpatient})",
+        "total_prior_visits": f"Total prior visits ({p.number_outpatient + p.number_emergency + p.number_inpatient})",
+        "diag_1_group": f"Primary diagnosis: {p.diag_1_group}",
+        "diag_2_group": f"Secondary diagnosis: {p.diag_2_group}",
+        "number_diagnoses": f"Diagnoses recorded ({p.number_diagnoses})",
+        "num_lab_procedures": f"Lab procedures ({p.num_lab_procedures})",
+        "num_procedures": f"Procedures performed ({p.num_procedures})",
+        "num_medications": f"Medications ({p.num_medications})",
+        "A1Cresult": f"A1C result: {p.A1Cresult}",
+        "change": "Diabetes medication changed" if p.change == "Ch" else "No diabetes medication change",
+    }[feature]
+
+
+def source_fields() -> list[str]:
+    """The form field behind each column the preprocessor outputs (one-hot columns -> one field)."""
+    fields = []
+    for name in PIPELINE["prep"].get_feature_names_out():
+        kind, rest = name.split("__", 1)
+        fields.append(rest if kind == "num" else max((f for f in FEATURES if rest.startswith(f + "_")), key=len))
+    return fields
+
+
+SOURCE = source_fields()
+
+
+def explain(X: pd.DataFrame) -> tuple[float, float, pd.Series]:
+    """SHAP values per form field, rescaled from log-odds to probability points so they
+    add up from the model's baseline to this patient's score."""
+    contribs = PIPELINE["model"].get_booster().predict(
+        xgb.DMatrix(PIPELINE["prep"].transform(X)), pred_contribs=True)[0]
+    bias = contribs[-1]
+    per_field = pd.Series(contribs[:-1], index=SOURCE).groupby(level=0).sum()
+    total = per_field.sum()
+    baseline = 1 / (1 + np.exp(-bias))
+    probability = 1 / (1 + np.exp(-(bias + total)))
+    scale = (probability - baseline) / total if abs(total) > 1e-9 else baseline * (1 - baseline)
+    return float(probability), float(baseline), per_field * scale
 
 
 @router.post("/predict")
 def predict(patient: PatientIn):
-    contribs = placeholder_contributions(patient)
-    probability = round(min(max(BASE_RATE + sum(v for _, v in contribs), 0.01), 0.99), 2)
+    probability, baseline, contribs = explain(to_features(patient))
     tier = "high" if probability >= HIGH_THRESHOLD else "medium" if probability >= MEDIUM_THRESHOLD else "low"
-    top = sorted(contribs, key=lambda c: abs(c[1]), reverse=True)[:5]
+    top = contribs[contribs.abs().sort_values(ascending=False).index][:5]
     return {
-        "probability": probability,
+        "probability": round(probability, 2),
         "tier": tier,
-        "threshold": HIGH_THRESHOLD,
-        "base_rate": BASE_RATE,
-        "contributions": [{"feature": f, "value": round(v, 2)} for f, v in top if round(v, 2) != 0],
+        "threshold": round(HIGH_THRESHOLD, 2),
+        "base_rate": round(baseline, 2),
+        "contributions": [{"feature": label(f, patient), "value": round(float(v), 2)}
+                          for f, v in top.items() if round(float(v), 2) != 0],
         "action": ACTIONS[tier],
-        "placeholder": True,
+        "placeholder": False,
     }
