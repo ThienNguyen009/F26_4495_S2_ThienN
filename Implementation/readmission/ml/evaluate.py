@@ -16,11 +16,11 @@ def load_splits(path="data/clean_split.parquet"):
     return {s: df[df["split"] == s].reset_index(drop=True) for s in ["train", "val", "test"]}
 
 
-def make_preprocessor():
+def make_preprocessor(numeric=NUMERIC, categorical=CATEGORICAL):
     return ColumnTransformer([
-        ("num", StandardScaler(), NUMERIC),
+        ("num", StandardScaler(), numeric),
         ("cat", OneHotEncoder(handle_unknown="infrequent_if_exist", min_frequency=50,
-                              sparse_output=False), CATEGORICAL),
+                              sparse_output=False), categorical),
     ])
 
 def precision_at_top(y, p, share=0.20):

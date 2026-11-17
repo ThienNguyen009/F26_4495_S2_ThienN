@@ -1,7 +1,12 @@
 # Only what the deployed API needs (requirements.txt also has notebooks, plotting, training libs).
-# Add scikit-learn / xgboost / pandas / joblib here once api/scoring.py loads the trained model.
+# The ML versions must match the ones models/readmission_form.joblib was trained with.
 fastapi==0.128.8
 uvicorn[standard]==0.39.0
 sqlalchemy==2.0.54
 psycopg[binary]==3.2.13
 pydantic==2.13.5
+numpy==2.0.2
+pandas==2.3.3
+scikit-learn==1.6.1
+xgboost-cpu==2.1.4
+joblib==1.5.3

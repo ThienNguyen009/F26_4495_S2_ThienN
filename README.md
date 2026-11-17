@@ -55,6 +55,7 @@ python make_clean.py               # data/diabetic_data.csv -> data/clean.parque
 python -m ml.split                 # adds train/test split -> data/clean_split.parquet
 python -m ml.load_db               # creates the schema and loads encounters into Postgres
 docker compose exec -T db psql -U readmit -d readmit < sql/views.sql   # optional: analysis views
+python -m ml.train                 # optional: retrains and overwrites the model in models/
 ```
 The notebooks in `notebooks/` (inspection, EDA, baseline models) can then be opened with `jupyter notebook`.
 
