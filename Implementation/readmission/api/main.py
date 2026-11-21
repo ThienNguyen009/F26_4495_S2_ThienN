@@ -14,6 +14,7 @@ from contextlib import asynccontextmanager
 
 from api.auth import router as auth_router
 from api.db import init_db
+from api.queue import router as queue_router
 from api.scoring import router as scoring_router
 
 @asynccontextmanager
@@ -29,6 +30,7 @@ app.add_middleware(CORSMiddleware, allow_origins=[o.strip() for o in ALLOWED_ORI
                    allow_methods=["*"], allow_headers=["*"])
 app.include_router(auth_router)
 app.include_router(scoring_router)
+app.include_router(queue_router)
  
 # @app.get("/")
 # def running():

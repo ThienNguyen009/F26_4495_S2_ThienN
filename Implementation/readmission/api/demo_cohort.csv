@@ -1,0 +1,43 @@
+encounter_id,age_band,gender,admission_type,time_in_hospital,disposition_group,number_inpatient,number_emergency,number_outpatient,diag_1_group,diag_2_group,number_diagnoses,num_lab_procedures,num_procedures,num_medications,A1Cresult,change
+259910682,[90-100),Male,Emergency,6,Care facility,1,0,0,Other,Other,8,63,0,17,None,Ch
+266185332,[50-60),Male,Urgent,3,Home,0,0,1,Other,Other,8,1,2,11,None,No
+154179138,[70-80),Male,Emergency,1,Home,0,0,0,Circulatory,Circulatory,9,3,0,10,None,Ch
+12286464,[70-80),Male,Urgent,5,Home with services,2,0,0,Respiratory,Circulatory,9,51,0,14,None,Ch
+129282462,[90-100),Female,Emergency,10,Home,1,2,0,Respiratory,Circulatory,8,28,1,13,None,Ch
+22818462,[70-80),Male,Emergency,4,Home with services,0,0,0,Circulatory,Respiratory,8,2,1,19,None,Ch
+133875858,[70-80),Female,Emergency,11,Home,1,0,0,Genitourinary,Respiratory,9,44,0,29,None,Ch
+24709890,[50-60),Female,Urgent,7,Home with services,4,0,0,Neoplasms,Neoplasms,9,61,2,22,None,No
+82516722,[50-60),Female,Unknown,4,Home with services,0,0,0,Musculoskeletal,Diabetes,5,23,1,25,None,Ch
+139183074,[60-70),Female,Emergency,2,Home with services,1,0,0,Respiratory,Respiratory,9,35,2,13,None,No
+313789754,[60-70),Male,Unknown,4,Other hospital,0,0,0,Circulatory,Circulatory,6,76,0,5,Norm,No
+198710472,[70-80),Male,Emergency,7,Care facility,3,0,0,Respiratory,Circulatory,9,55,0,27,>7,No
+289025490,[40-50),Female,Emergency,3,Home,0,2,0,Diabetes,Other,5,1,0,13,None,Ch
+45213570,[60-70),Male,Urgent,3,Care facility,2,0,1,Other,Neoplasms,8,22,0,6,None,No
+289858122,[70-80),Female,Emergency,13,Home,1,1,0,Other,Digestive,9,27,0,12,None,Ch
+92685822,[70-80),Female,Emergency,3,Home,2,0,0,Other,Diabetes,5,56,0,12,None,No
+144757728,[30-40),Male,Emergency,2,Home,0,0,0,Respiratory,Diabetes,4,30,0,9,None,No
+229868844,[80-90),Male,Emergency,1,Care facility,1,0,6,Circulatory,Circulatory,9,4,0,12,>7,Ch
+292316622,[50-60),Male,Urgent,4,Home with services,0,0,0,Musculoskeletal,Other,5,38,4,11,None,No
+91536288,[70-80),Male,Urgent,5,Home,1,0,0,Circulatory,Musculoskeletal,5,49,0,12,None,Ch
+166782282,[30-40),Female,Emergency,7,Home,2,0,0,Digestive,Other,4,56,0,18,None,Ch
+24244470,[60-70),Male,Emergency,4,Home,0,0,0,Respiratory,Diabetes,3,45,3,10,None,No
+217310760,[70-80),Male,Emergency,2,Home with services,3,0,0,Circulatory,Circulatory,9,45,0,12,>8,No
+352466294,[80-90),Female,Emergency,5,Care facility,2,0,0,Circulatory,Circulatory,8,68,0,19,None,No
+178998072,[60-70),Male,Emergency,6,Home,0,0,0,Respiratory,Other,9,67,0,30,None,No
+66748146,[70-80),Male,Elective,2,Home with services,0,0,7,Musculoskeletal,Other,9,43,3,22,None,Ch
+175367634,[60-70),Female,Elective,2,Home,0,0,0,Respiratory,Respiratory,9,39,0,17,None,Ch
+68064708,[70-80),Male,Emergency,9,Care facility,0,1,0,Diabetes,Other,9,23,3,19,None,No
+64040322,[60-70),Female,Emergency,4,Home,1,0,0,Injury,Respiratory,9,50,3,12,None,Ch
+96588126,[80-90),Female,Emergency,2,Home,0,0,0,Circulatory,Respiratory,9,26,0,12,None,No
+106918350,[40-50),Male,Emergency,4,Home,0,0,0,Digestive,Other,5,44,2,14,None,No
+34759512,[50-60),Male,Unknown,5,Home,0,0,0,Other,Circulatory,7,18,0,16,None,Ch
+189170580,[70-80),Female,Elective,6,Home,2,0,0,Digestive,Other,7,49,3,17,None,Ch
+163634898,[70-80),Male,Elective,4,Home,0,0,0,Circulatory,Other,5,33,2,12,None,No
+126710016,[50-60),Female,Elective,11,Home,0,0,0,Respiratory,Respiratory,6,62,1,32,None,Ch
+129662826,[60-70),Female,Urgent,1,Home,1,2,0,Circulatory,Respiratory,4,3,0,8,None,Ch
+75559266,[50-60),Male,Emergency,4,Home,0,0,0,Diabetes,Circulatory,5,72,1,12,>8,No
+174292674,[60-70),Female,Urgent,5,Home with services,1,0,0,Genitourinary,Other,9,21,0,26,None,Ch
+150958992,[80-90),Male,Emergency,1,Home,0,0,0,Respiratory,Circulatory,9,55,0,12,Norm,Ch
+84593448,[50-60),Female,Emergency,2,Home,0,3,0,Diabetes,Other,6,56,0,12,>8,Ch
+65328114,[40-50),Female,Unknown,7,Home,0,0,3,Other,Other,8,23,0,15,None,No
+429658940,[80-90),Female,Emergency,4,Home with services,0,0,0,Circulatory,Genitourinary,9,43,0,19,None,Ch
