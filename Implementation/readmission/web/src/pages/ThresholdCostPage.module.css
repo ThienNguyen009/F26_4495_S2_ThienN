@@ -1,0 +1,192 @@
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+@media (max-width: 62em) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  padding: 20px 24px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 8px;
+  background: var(--mantine-color-white);
+}
+
+.note {
+  padding: 16px 20px;
+  border: 1px solid var(--mantine-color-brand-1);
+  border-radius: 8px;
+  background: var(--mantine-color-brand-0);
+}
+
+.hero {
+  font-size: 44px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin: 4px 0 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.statRow {
+  border-top: 1px solid var(--mantine-color-gray-3);
+}
+
+/* chart */
+.chart {
+  position: relative;
+  margin-top: 12px;
+
+  & svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    cursor: crosshair;
+    user-select: none;
+  }
+}
+
+.grid {
+  stroke: var(--mantine-color-gray-2);
+  stroke-width: 1;
+}
+
+.tick {
+  font-size: 11px;
+  fill: var(--mantine-color-gray-7);
+  font-variant-numeric: tabular-nums;
+}
+
+.axisLabel {
+  font-size: 12px;
+  fill: var(--mantine-color-gray-7);
+}
+
+.baseline {
+  stroke: var(--mantine-color-gray-5);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.line {
+  fill: none;
+  stroke: var(--mantine-color-brand-7);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.selLine {
+  stroke: var(--mantine-color-gray-8);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.selDot {
+  fill: var(--mantine-color-brand-8);
+  stroke: var(--mantine-color-white);
+  stroke-width: 2;
+}
+
+.selLabel {
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--mantine-color-gray-9);
+}
+
+.crosshair {
+  stroke: var(--mantine-color-gray-4);
+  stroke-width: 1;
+}
+
+.hoverDot {
+  fill: var(--mantine-color-white);
+  stroke: var(--mantine-color-brand-7);
+  stroke-width: 2;
+}
+
+.tooltip {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 6px;
+  background: var(--mantine-color-white);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.08);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* table */
+.table {
+  font-size: 14px;
+
+  & thead th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--mantine-color-gray-7);
+    white-space: nowrap;
+  }
+
+  & td {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--mantine-color-gray-0);
+  }
+
+  &[data-selected] {
+    background: var(--mantine-color-brand-0);
+    font-weight: 700;
+  }
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+.tag {
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mantine-color-gray-8);
+  background: var(--mantine-color-gray-1);
+}
+
+.netBar {
+  position: relative;
+  width: 120px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--mantine-color-gray-1);
+  overflow: hidden;
+
+  & > span {
+    position: absolute;
+    inset: 0 auto 0 0;
+    border-radius: 4px;
+    background: var(--mantine-color-brand-7);
+
+    &[data-negative] {
+      background: #c0322b;
+    }
+  }
+}

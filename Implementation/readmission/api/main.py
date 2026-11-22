@@ -16,6 +16,7 @@ from api.auth import router as auth_router
 from api.db import init_db
 from api.queue import router as queue_router
 from api.scoring import router as scoring_router
+from api.threshold import router as threshold_router
 
 @asynccontextmanager
 async def lifespan(app):
@@ -31,6 +32,7 @@ app.add_middleware(CORSMiddleware, allow_origins=[o.strip() for o in ALLOWED_ORI
 app.include_router(auth_router)
 app.include_router(scoring_router)
 app.include_router(queue_router)
+app.include_router(threshold_router)
  
 # @app.get("/")
 # def running():
