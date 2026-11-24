@@ -83,15 +83,20 @@ def logout(authorization: str = Header(default="")):
     return {"ok": True}
 
 
-@router.get("/me")
-def me(authorization: str = Header(default="")):
-    token = bearer_token(authorization)
+def current_user(authorization: str = Header(default="")):
+    """The signed-in user for this request's bearer token; 401 if there isn't one."""
     with ENGINE.connect() as conn:
         user = conn.execute(
             text("""SELECT u.id, u.full_name, u.organization, u.email
                     FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.token = :t"""),
-            {"t": token},
+            {"t": bearer_token(authorization)},
         ).first()
     if user is None:
         raise HTTPException(401, "Not signed in")
+    return user
+
+
+@router.get("/me")
+def me(authorization: str = Header(default="")):
+    user = current_user(authorization)
     return {"id": user.id, "fullName": user.full_name, "organization": user.organization, "email": user.email}

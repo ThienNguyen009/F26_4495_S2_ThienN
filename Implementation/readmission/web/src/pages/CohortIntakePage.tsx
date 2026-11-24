@@ -17,12 +17,6 @@ type Mode = 'replay' | 'csv' | 'single'
 
 const MODES: { value: Mode; title: string; body: string; foot: string }[] = [
   {
-    value: 'replay',
-    title: 'Replay past patients',
-    body: 'Score a random group of past patients and check the results against what really happened.',
-    foot: 'Real outcomes known · good for demos',
-  },
-  {
     value: 'csv',
     title: 'Upload a CSV',
     body: 'Upload a file of patients and get back a list ranked from highest to lowest risk.',
@@ -65,7 +59,7 @@ function downloadTemplate() {
 
 export function CohortIntakePage() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState<Exclude<Mode, 'single'>>('replay')
+  const [mode, setMode] = useState<Exclude<Mode, 'single'>>('csv')
 
   // single-patient entry has its own page
   function handleModeChange(value: string) {
@@ -89,7 +83,7 @@ export function CohortIntakePage() {
           Input mode
         </Text>
         <Radio.Group value={mode} onChange={handleModeChange}>
-          <SimpleGrid cols={{ base: 1, md: 3 }} spacing="md">
+          <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
             {MODES.map((m) => (
               <Radio.Card key={m.value} value={m.value} className={classes.modeCard}>
                 <Group gap={12} wrap="nowrap" align="center">
@@ -114,7 +108,6 @@ export function CohortIntakePage() {
       </div>
 
       <Stack className={classes.panel} gap="xl">
-        {mode === 'replay' && <ReplayForm />}
         {mode === 'csv' && <CsvForm />}
         <Group gap="md">
           <Button size="md" radius="md" disabled title="Not connected to the model yet">
@@ -144,30 +137,6 @@ function PanelHeading({ title, body }: { title: string; body: string }) {
         {body}
       </Text>
     </div>
-  )
-}
-
-function ReplayForm() {
-  return (
-    <Stack gap="lg">
-      <PanelHeading
-        title="Replay past patients"
-        body="Pick random past patients the model has never seen. We already know which of them came back to hospital within 30 days, so you can check whether the model flagged the right people."
-      />
-      <NumberInput
-        label="How many patients?"
-        defaultValue={50}
-        min={10}
-        max={500}
-        allowDecimal={false}
-        radius="md"
-        maw={240}
-      />
-      <div className={classes.note}>
-        <strong>What you’ll see:</strong> a list of these patients from highest to lowest risk, with a column showing
-        who really came back within 30 days.
-      </div>
-    </Stack>
   )
 }
 

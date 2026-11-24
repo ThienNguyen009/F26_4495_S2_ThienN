@@ -1,0 +1,121 @@
+.page {
+  --risk-high: #c0322b;
+  --risk-medium: #b8860b;
+  --risk-low: var(--mantine-color-brand-7);
+}
+
+.stat {
+  padding: 16px 20px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 8px;
+  background: var(--mantine-color-white);
+}
+
+.statValue {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableWrap {
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 8px;
+  background: var(--mantine-color-white);
+  overflow: hidden;
+}
+
+.table {
+  font-size: 14px;
+
+  & thead th {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--mantine-color-gray-7);
+    white-space: nowrap;
+  }
+
+  & td {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.idLink {
+  font-weight: 700;
+  color: var(--mantine-color-brand-8);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.source {
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mantine-color-gray-8);
+  background: var(--mantine-color-gray-1);
+
+  &[data-source='saved'] {
+    color: var(--mantine-color-brand-8);
+    background: var(--mantine-color-brand-0);
+  }
+}
+
+.queueTag {
+  padding: 1px 8px;
+  border: 1px solid var(--mantine-color-brand-2);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mantine-color-brand-8);
+}
+
+.prob {
+  font-weight: 600;
+  min-width: 30px;
+}
+
+.badge {
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--tier);
+  background: color-mix(in srgb, var(--tier) 12%, white);
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--mantine-color-gray-8);
+
+  &::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--mantine-color-gray-4);
+  }
+
+  &[data-kind='bad']::before {
+    background: var(--risk-high);
+  }
+  &[data-kind='good']::before {
+    background: var(--risk-low);
+  }
+  &[data-kind='warn']::before {
+    background: var(--risk-medium);
+  }
+  &[data-kind='muted'] {
+    color: var(--mantine-color-gray-7);
+  }
+}

@@ -103,6 +103,16 @@
     border-radius: 50%;
     background: var(--risk-medium);
   }
+
+  &[data-saved] {
+    border-color: var(--mantine-color-brand-2);
+    color: var(--mantine-color-brand-8);
+    background: var(--mantine-color-brand-0);
+
+    &::before {
+      background: var(--mantine-color-brand-7);
+    }
+  }
 }
 
 .meter {

@@ -3,31 +3,32 @@ import type { ReactNode } from 'react'
 
 type Props = { title: string; subtitle: string; children: ReactNode }
 
-// Split screen: black brand panel on the left (hidden on mobile), white form panel on the right.
+// Sign-in / register shell: the form sits in a rounded card on the same light background as the console.
 export function AuthLayout({ title, subtitle, children }: Props) {
   return (
-    <Flex mih="100vh">
-      
-
-      <Flex flex={1} align="center" justify="center" p="xl" bg="white">
-        <Box w="100%" maw={400}>
-          <Group gap={10} mb={40}>
-            <Box w={12} h={12} bg="brand.7" style={{ borderRadius: 3 }} />
-            <Text fw={800} size="lg">
-              Discharge Risk Console
-            </Text>
-          </Group>
-          <Stack gap={4} mb={32}>
-            <Title order={2}>
-              {title}
-            </Title>
-            <Text c="ink.6" size="sm">
-              {subtitle}
-            </Text>
-          </Stack>
-          {children}
-        </Box>
-      </Flex>
+    <Flex mih="100vh" align="center" justify="center" p="md" bg="gray.0">
+      <Box
+        w="100%"
+        maw={440}
+        p={{ base: 'lg', sm: 36 }}
+        bg="white"
+        bd="1px solid var(--mantine-color-gray-3)"
+        style={{ borderRadius: 'var(--mantine-radius-md)' }}
+      >
+        <Group gap={10} mb={32}>
+          <Box w={12} h={12} bg="brand.7" style={{ borderRadius: 3 }} />
+          <Text fw={800} size="lg">
+            Discharge Risk Console
+          </Text>
+        </Group>
+        <Stack gap={4} mb={28}>
+          <Title order={2}>{title}</Title>
+          <Text c="gray.7" size="sm">
+            {subtitle}
+          </Text>
+        </Stack>
+        {children}
+      </Box>
     </Flex>
   )
 }

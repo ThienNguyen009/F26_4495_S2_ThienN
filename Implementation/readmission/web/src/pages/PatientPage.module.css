@@ -1,0 +1,241 @@
+.page {
+  --risk-high: #c0322b;
+  --risk-medium: #b8860b;
+  --risk-low: var(--mantine-color-brand-7);
+  --negative: #2f6fb3;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr);
+  gap: var(--mantine-spacing-md);
+  align-items: start;
+}
+
+@media (max-width: 62em) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  padding: 22px 24px;
+  border: 1px solid var(--mantine-color-gray-3);
+  border-radius: 8px;
+  background: var(--mantine-color-white);
+}
+
+.section {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--mantine-color-gray-7);
+}
+
+/* risk score */
+.riskCard {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.score {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.meterBlock {
+  flex: 1;
+  min-width: 220px;
+}
+
+.tierBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tier);
+  background: color-mix(in srgb, var(--tier) 12%, white);
+
+  &::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    background: var(--tier);
+  }
+}
+
+.meter {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--mantine-color-gray-2);
+}
+
+.meterFill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--tier);
+}
+
+.meterMark {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--mantine-color-black);
+}
+
+.meterScale {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--mantine-color-gray-7);
+  font-variant-numeric: tabular-nums;
+}
+
+.meterMarkLabel {
+  position: absolute;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* why chart: label | bar area centred on zero | value */
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--mantine-color-gray-8);
+
+  &::before {
+    content: '';
+    width: 9px;
+    height: 9px;
+    border-radius: 2px;
+    background: var(--c);
+  }
+}
+
+/* label | track (shared scale, zero line at --zero) | value — same columns on every row */
+.contribChart {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(140px, 1fr) max-content;
+  column-gap: 16px;
+}
+
+.contribRow {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: stretch;
+}
+
+.contribLabel {
+  align-self: center;
+  padding: 5px 0;
+}
+
+/* rows touch (no gap) so the zero line drawn in each track reads as one continuous axis */
+.contribTrack {
+  position: relative;
+  min-height: 32px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--zero);
+    width: 1px;
+    background: var(--mantine-color-gray-5);
+  }
+}
+
+.contribBar {
+  position: absolute;
+  top: 50%;
+  height: 14px;
+  transform: translateY(-50%);
+  border-radius: 0 3px 3px 0;
+  background: var(--risk-high);
+
+  &[data-negative] {
+    border-radius: 3px 0 0 3px;
+    background: var(--negative);
+  }
+}
+
+.contribValue {
+  align-self: center;
+  color: var(--risk-high);
+  font-variant-numeric: tabular-nums;
+
+  &[data-negative] {
+    color: var(--negative);
+  }
+}
+
+.contribAxis {
+  position: relative;
+  height: 18px;
+  border-top: 1px solid var(--mantine-color-gray-3);
+
+  & > span {
+    position: absolute;
+    top: 2px;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--mantine-color-gray-7);
+  }
+}
+
+/* decision */
+.status {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--mantine-color-brand-2);
+  border-radius: 6px;
+  background: var(--mantine-color-brand-0);
+
+  &[data-overridden] {
+    border-color: color-mix(in srgb, var(--risk-medium) 35%, white);
+    background: color-mix(in srgb, var(--risk-medium) 8%, white);
+  }
+}
+
+/* encounter record */
+.record {
+  margin: 8px 0 0;
+
+  & > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--mantine-color-gray-2);
+    font-size: 14px;
+  }
+
+  & dt {
+    color: var(--mantine-color-gray-8);
+  }
+
+  & dd {
+    margin: 0;
+    font-weight: 600;
+    text-align: right;
+  }
+}

@@ -17,7 +17,9 @@ import {
 import { useForm } from '@mantine/form'
 import { useState, type CSSProperties, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { addRecord, setQueued, type SavedRecord } from '../api/records'
 import { predict, type Prediction, type Tier } from '../api/scoring'
+import { AGE_BAND_NOTE } from '../components/ageBandText'
 import classes from './ScorePatientPage.module.css'
 
 const opts = (values: string[]) => values.map((v) => ({ value: v, label: v }))
@@ -44,7 +46,7 @@ const TIER_COLOR: Record<Tier, string> = { high: 'var(--risk-high)', medium: 'va
 // plain-language help shown in the ? tooltip next to each field label
 const HELP: Partial<Record<keyof typeof INITIAL, string>> = {
   race: 'Used only to check that the model treats groups fairly. It is never sent to the model.',
-  age_band: 'The patient’s age, in 10-year groups. On its own, age has only a small effect on the risk score.',
+  age_band: `${AGE_BAND_NOTE} On its own, age has only a small effect on the risk score.`,
   gender: 'The patient’s recorded sex. It has almost no effect on the risk score.',
   admission_type: 'How the patient came in: emergency, urgent, planned (elective) or after an injury (trauma).',
   time_in_hospital: 'How many days the patient spent in hospital this time (1–14).',
@@ -114,15 +116,32 @@ export function ScorePatientPage() {
   const [result, setResult] = useState<Prediction | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const form = useForm({ initialValues: INITIAL })
+  const [saved, setSaved] = useState<SavedRecord | null>(null)
+  const [saving, setSaving] = useState<'dataset' | 'queue' | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  // any edit after predicting/saving means the shown result no longer matches the form
+  const form = useForm({
+    initialValues: INITIAL,
+    onValuesChange: () => {
+      setSaved(null)
+      setSaveError(null)
+    },
+  })
+
+  function split(values: typeof INITIAL) {
+    const { patientName, mrn, encounterId, unitBed, race, scoredBy, ...features } = values
+    const identity = {
+      patient_name: patientName, mrn, encounter_ref: encounterId, unit_bed: unitBed, race, scored_by: scoredBy,
+    }
+    return { identity, features }
+  }
 
   async function handlePredict(values: typeof INITIAL) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { patientName, mrn, encounterId, unitBed, race, scoredBy, ...features } = values
     setLoading(true)
     setError(null)
+    setSaved(null)
     try {
-      setResult(await predict(features))
+      setResult(await predict(split(values).features))
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -130,10 +149,31 @@ export function ScorePatientPage() {
     }
   }
 
+  // "Add to dataset" saves the record; "Add to queue" saves it (if not saved yet) and puts it on the queue
+  async function handleSave(toQueue: boolean) {
+    const { identity, features } = split(form.getValues())
+    setSaving(toQueue ? 'queue' : 'dataset')
+    setSaveError(null)
+    try {
+      if (!saved) {
+        setSaved(await addRecord(identity, features, toQueue))
+      } else if (toQueue && !saved.in_queue) {
+        await setQueued(saved.id, true)
+        setSaved({ ...saved, in_queue: true })
+      }
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setSaving(null)
+    }
+  }
+
   function handleClear() {
     form.reset()
     setResult(null)
     setError(null)
+    setSaved(null)
+    setSaveError(null)
   }
 
   const num = (field: keyof typeof INITIAL, label: string, min = 0, max?: number) => (
@@ -219,6 +259,34 @@ export function ScorePatientPage() {
                       {error}
                     </Alert>
                   )}
+                  {saveError && (
+                    <Alert variant="light" color="red" title="Could not add to the dataset">
+                      {saveError}
+                    </Alert>
+                  )}
+                  {saved && (
+                    <Alert
+                      variant="light"
+                      color="brand"
+                      title={saved.in_queue ? 'Added to the discharge queue' : 'Added to the dataset'}
+                    >
+                      Saved as record #{saved.id} with a risk of {saved.probability.toFixed(2)}. The 30-day outcome is
+                      left open until it is known.{' '}
+                      {saved.in_queue ? (
+                        <>
+                          The patient is now ranked on the{' '}
+                          <Anchor component={Link} to="/queue" c="brand.8" fw={600}>
+                            discharge queue
+                          </Anchor>
+                          .
+                        </>
+                      ) : (
+                        <Anchor component={Link} to={`/patient/record/${saved.id}`} c="brand.8" fw={600}>
+                          Open the record
+                        </Anchor>
+                      )}
+                    </Alert>
+                  )}
                   <Group justify="space-between">
                     <Group gap="sm">
                       <Button type="submit" size="md" radius="md" loading={loading} px="xl">
@@ -228,10 +296,12 @@ export function ScorePatientPage() {
                         variant="outline"
                         size="md"
                         radius="md"
-                        disabled={!result}
-                        title="Saving to the dataset isn't built yet"
+                        disabled={!result || !!saved || saving === 'queue'}
+                        loading={saving === 'dataset'}
+                        onClick={() => handleSave(false)}
+                        title={!result ? 'Predict first, then add the record' : undefined}
                       >
-                        Add to dataset
+                        {saved ? 'Added' : 'Add to dataset'}
                       </Button>
                     </Group>
                     <Button variant="default" size="md" radius="md" onClick={handleClear}>
@@ -256,7 +326,13 @@ export function ScorePatientPage() {
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 4.1 }}>
-          <ResultColumn result={result} />
+          <ResultColumn
+            result={result}
+            savedId={saved?.id ?? null}
+            inQueue={saved?.in_queue ?? false}
+            queueLoading={saving === 'queue'}
+            onAddToQueue={() => handleSave(true)}
+          />
         </Grid.Col>
       </Grid>
     </Stack>
@@ -276,7 +352,20 @@ function FieldSection({ title, children }: { title: string; children: ReactNode 
   )
 }
 
-function ResultColumn({ result }: { result: Prediction | null }) {
+function ResultColumn({
+  result,
+  savedId,
+  inQueue,
+  queueLoading,
+  onAddToQueue,
+}: {
+  result: Prediction | null
+  savedId: number | null
+  inQueue: boolean
+  queueLoading: boolean
+  onAddToQueue: () => void
+}) {
+  const saved = savedId !== null
   const tierStyle = result ? ({ '--tier': TIER_COLOR[result.tier] } as CSSProperties) : undefined
   const maxAbs = Math.max(0.01, ...(result?.contributions.map((c) => Math.abs(c.value)) ?? []))
 
@@ -285,7 +374,11 @@ function ResultColumn({ result }: { result: Prediction | null }) {
       <Box className={classes.card} style={tierStyle}>
         <Group justify="space-between" mb={8}>
           <span className={classes.section}>Result</span>
-          {result && <span className={classes.savedPill}>Not saved</span>}
+          {result && (
+            <span className={classes.savedPill} data-saved={saved || undefined}>
+              {saved ? 'Saved to dataset' : 'Not saved'}
+            </span>
+          )}
         </Group>
         {result ? (
           <>
@@ -351,10 +444,31 @@ function ResultColumn({ result }: { result: Prediction | null }) {
           {result ? result.action : '—'}
         </Text>
         <SimpleGrid cols={2} spacing="sm">
-          <Button size="md" radius="md" disabled={!result} title="The discharge queue isn't built yet">
-            Add to queue
-          </Button>
-          <Button component={Link} to="/patient" variant="default" size="md" radius="md" disabled={!result}>
+          {inQueue ? (
+            <Button component={Link} to="/queue" size="md" radius="md" variant="light">
+              In queue · open
+            </Button>
+          ) : (
+            <Button
+              size="md"
+              radius="md"
+              disabled={!result}
+              loading={queueLoading}
+              onClick={onAddToQueue}
+              title={result ? 'Save this record and rank it on the discharge queue' : 'Predict first'}
+            >
+              Add to queue
+            </Button>
+          )}
+          <Button
+            component={Link}
+            to={saved ? `/patient/record/${savedId}` : '/patients'}
+            variant="default"
+            size="md"
+            radius="md"
+            disabled={!saved}
+            title={saved ? undefined : 'Add the record to the dataset first, then open its full page'}
+          >
             Full explanation
           </Button>
         </SimpleGrid>

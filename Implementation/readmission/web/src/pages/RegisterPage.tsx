@@ -79,7 +79,7 @@ export function RegisterPage() {
             key={form.key('confirmPassword')}
             {...form.getInputProps('confirmPassword')}
           />
-          <Button type="submit" fullWidth size="md" loading={loading} tt="uppercase">
+          <Button type="submit" fullWidth size="md" loading={loading}>
             Create account
           </Button>
           <Text size="sm" ta="center">

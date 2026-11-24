@@ -1,0 +1,12 @@
+/* dotted underline signals there's an explanation on hover */
+.band {
+  text-decoration: underline dotted var(--mantine-color-gray-5);
+  text-underline-offset: 3px;
+  cursor: help;
+
+  &:focus-visible {
+    outline: 2px solid var(--mantine-color-brand-7);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}

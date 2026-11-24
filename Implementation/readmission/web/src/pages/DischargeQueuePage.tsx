@@ -1,6 +1,8 @@
 import { Alert, Button, Group, Loader, Menu, SimpleGrid, Stack, Table, Text, Title } from '@mantine/core'
 import { useEffect, useState, type CSSProperties } from 'react'
+import { Link } from 'react-router-dom'
 import { getQueue, type Queue, type QueuePatient } from '../api/queue'
+import { AgeBand, AgeBandLabel } from '../components/AgeBand'
 import type { Tier } from '../api/scoring'
 import classes from './DischargeQueuePage.module.css'
 
@@ -10,11 +12,18 @@ const TIER_COLOR: Record<Tier, string> = { high: 'var(--risk-high)', medium: 'va
 
 const tierStyle = (tier: Tier) => ({ '--tier': TIER_COLOR[tier] }) as CSSProperties
 
+// demo patients open by encounter; saved records open their own record page
+const patientHref = (p: QueuePatient) =>
+  p.source === 'saved' ? `/patient/record/${p.record_id}` : `/patient/${p.encounter_id}`
+
+const csvCell = (v: string | null) => `"${(v ?? '').replace(/"/g, '""')}"`
+
 function exportWorklist(rows: QueuePatient[]) {
-  const header = ['encounter', 'age_band', 'primary_dx_group', 'los_days', 'prior_admissions', 'medications',
-    'risk', 'tier', 'recommended_action']
-  const lines = rows.map((r) => [r.encounter_id, r.age_band, r.diag_1_group, r.time_in_hospital, r.number_inpatient,
-    r.num_medications, r.probability.toFixed(2), r.tier, `"${r.action}"`].join(','))
+  const header = ['encounter', 'patient_name', 'source', 'age_band', 'primary_dx_group', 'los_days',
+    'prior_admissions', 'medications', 'risk', 'tier', 'recommended_action']
+  const lines = rows.map((r) => [csvCell(r.encounter_id), csvCell(r.patient_name), r.source, r.age_band,
+    r.diag_1_group, r.time_in_hospital, r.number_inpatient, r.num_medications, r.probability.toFixed(2), r.tier,
+    csvCell(r.action)].join(','))
   const url = URL.createObjectURL(new Blob([[header.join(','), ...lines].join('\n') + '\n'], { type: 'text/csv' }))
   const a = document.createElement('a')
   a.href = url
@@ -35,6 +44,7 @@ export function DischargeQueuePage() {
   const rows = queue?.patients.filter((p) => filter === 'all' || p.tier === filter) ?? []
   // bars are relative to the riskiest patient so the ranking stays readable at low base rates
   const maxRisk = Math.max(...(queue?.patients.map((p) => p.probability) ?? [0]), 0.01)
+  const savedInQueue = queue?.patients.filter((p) => p.source === 'saved').length ?? 0
 
   return (
     <Stack gap="lg" className={classes.page}>
@@ -44,8 +54,9 @@ export function DischargeQueuePage() {
             Discharges scheduled today
           </Title>
           <Text size="sm" c="gray.7" mt={4}>
-            {queue ? `${queue.patients.length} patients` : 'Loading patients'} · demo cohort of held-out test
-            encounters · sorted by predicted 30-day readmission risk
+            {queue ? `${queue.patients.length} patients` : 'Loading patients'}
+            {savedInQueue ? ` · ${savedInQueue} added by staff` : ''} · demo cohort of held-out test encounters ·
+            sorted by predicted 30-day readmission risk
           </Text>
         </div>
         <Group gap="sm">
@@ -118,7 +129,9 @@ export function DischargeQueuePage() {
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>Encounter</Table.Th>
-                  <Table.Th>Age band</Table.Th>
+                  <Table.Th>
+                    <AgeBandLabel />
+                  </Table.Th>
                   <Table.Th>Primary dx group</Table.Th>
                   <Table.Th ta="right">LOS</Table.Th>
                   <Table.Th ta="right">Prior adm.</Table.Th>
@@ -129,9 +142,23 @@ export function DischargeQueuePage() {
               </Table.Thead>
               <Table.Tbody>
                 {rows.map((p) => (
-                  <Table.Tr key={p.encounter_id} style={tierStyle(p.tier)}>
-                    <Table.Td className={classes.encounter}>{p.encounter_id}</Table.Td>
-                    <Table.Td>{p.age_band}</Table.Td>
+                  <Table.Tr key={`${p.source}-${p.record_id ?? p.encounter_id}`} style={tierStyle(p.tier)}>
+                    <Table.Td>
+                      <Group gap={8} wrap="nowrap">
+                        <Link to={patientHref(p)} className={classes.encounter}>
+                          {p.encounter_id}
+                        </Link>
+                        {p.source === 'saved' && <span className={classes.savedTag}>Saved</span>}
+                      </Group>
+                      {p.patient_name && (
+                        <Text size="xs" c="gray.7">
+                          {p.patient_name}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <AgeBand band={p.age_band} />
+                    </Table.Td>
                     <Table.Td>{p.diag_1_group}</Table.Td>
                     <Table.Td ta="right">{p.time_in_hospital} d</Table.Td>
                     <Table.Td ta="right">{p.number_inpatient}</Table.Td>
@@ -145,7 +172,20 @@ export function DischargeQueuePage() {
                         <span className={classes.badge}>{TIER_LABEL[p.tier]}</span>
                       </Group>
                     </Table.Td>
-                    <Table.Td>{p.action}</Table.Td>
+                    <Table.Td>
+                      <Group gap={8} wrap="nowrap">
+                        <span>{p.decision?.decision === 'overridden' ? p.decision.action : p.action}</span>
+                        {p.decision && (
+                          <span
+                            className={classes.status}
+                            data-overridden={p.decision.decision === 'overridden' || undefined}
+                            title={p.decision.reason ?? undefined}
+                          >
+                            {p.decision.decision === 'accepted' ? 'Assigned' : 'Overridden'}
+                          </span>
+                        )}
+                      </Group>
+                    </Table.Td>
                   </Table.Tr>
                 ))}
                 {queue && !rows.length && (

@@ -81,6 +81,34 @@ button.stat {
 .encounter {
   font-weight: 700;
   color: var(--mantine-color-brand-8);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.savedTag {
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mantine-color-brand-8);
+  background: var(--mantine-color-brand-0);
+}
+
+.status {
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mantine-color-brand-8);
+  background: var(--mantine-color-brand-0);
+
+  &[data-overridden] {
+    color: #8a6508;
+    background: color-mix(in srgb, var(--risk-medium) 12%, white);
+  }
 }
 
 .bar {

@@ -72,7 +72,7 @@ export function LoginPage() {
               {...form.getInputProps('remember', { type: 'checkbox' })}
             />
           </Group>
-          <Button type="submit" fullWidth size="md" loading={loading} tt="uppercase">
+          <Button type="submit" fullWidth size="md" loading={loading}>
             Sign in
           </Button>
           <Text size="sm" ta="center">

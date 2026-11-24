@@ -17,6 +17,7 @@ export async function request<T>(path: string, init: RequestInit = {}): Promise<
     const detail = Array.isArray(data?.detail) ? data.detail[0]?.msg : data?.detail
     throw new Error(detail ?? `Server returned ${res.status}`)
   }
+  if (res.status === 204) return undefined as T // e.g. DELETE: no body
   return res.json()
 }
 

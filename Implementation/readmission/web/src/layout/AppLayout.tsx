@@ -28,7 +28,11 @@ export function AppLayout() {
                 to={item.to}
                 end
                 className={classes.tab}
-                aria-current={item.also?.includes(pathname) ? 'page' : undefined}
+                aria-current={
+                  item.also?.some((p) => (p.endsWith('/') ? pathname.startsWith(p) : pathname === p))
+                    ? 'page'
+                    : undefined
+                }
               >
                 {item.label}
               </NavLink>

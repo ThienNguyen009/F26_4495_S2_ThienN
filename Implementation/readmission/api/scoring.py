@@ -112,6 +112,32 @@ def explain(X: pd.DataFrame) -> tuple[float, float, pd.Series]:
     return float(probability), float(baseline), per_field * scale
 
 
+def tier_of(probability: float) -> str:
+    return "high" if probability >= HIGH_THRESHOLD else "medium" if probability >= MEDIUM_THRESHOLD else "low"
+
+
+def explain_patient(p: PatientIn, top_n: int = 8) -> dict:
+    """Score, tier, recommended action and top SHAP factors for the patient detail views
+    (queue patients and saved records share this)."""
+    probability, baseline, contribs = explain(to_features(p))
+    tier = tier_of(probability)
+    top = contribs[contribs.abs().sort_values(ascending=False).index][:top_n]
+    record = p.model_dump()
+    record["disposition_group"] = DISPOSITION_LABEL.get(p.disposition_group, p.disposition_group)
+    return {
+        "record": record,
+        "probability": round(probability, 2),
+        "tier": tier,
+        "high_threshold": round(HIGH_THRESHOLD, 2),
+        "medium_threshold": round(MEDIUM_THRESHOLD, 2),
+        "base_rate": round(baseline, 2),
+        "contributions": [{"feature": label(f, p), "value": round(float(v), 3)}
+                          for f, v in top.items() if round(float(v), 3) != 0],
+        "action": ACTIONS[tier],
+        "actions": ACTIONS,
+    }
+
+
 @router.post("/predict")
 def predict(patient: PatientIn):
     probability, baseline, contribs = explain(to_features(patient))
